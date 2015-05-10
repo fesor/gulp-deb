@@ -1,8 +1,10 @@
 {
   "name": "gulp-deb",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Build DEB archives with gulp",
   "main": "index.js",
+  "repository": "fesor/gulp-deb",
+  "tags": ["build", "debian", "deb", "package", "archive", "delivery", "distribute"],
   "dependencies": {
     "archiver": "^0.14.3",
     "gulp-util": "^3.0.4",
