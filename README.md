@@ -13,7 +13,7 @@ npm install --saveDev gulp-deb
 Then you can use it in your `gulpfile`
 
 ```javascript
-var gulp = require('gulp);
+var gulp = require('gulp');
 var deb = require('gulp-deb');
 
 gulp.task('build', function () {
