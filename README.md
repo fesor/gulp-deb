@@ -21,7 +21,7 @@ gulp.task('build', function () {
    return gulp
        .src([
          'src/**',
-         'node_modules/**,
+         'node_modules/**',
          '!**/.git/**'
        ], { base: process.cwd() })
        .pipe(deb('example.deb', {
