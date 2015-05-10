@@ -5,37 +5,44 @@ Deb archives is a great way for distribute your software package
 
 ## Basic Usage
 
+Install plugin:
+```
+npm install --saveDev gulp-deb
+```
+
+Then you can use it in your `gulpfile`
+
+```javascript
 var gulp = require('gulp);
 var deb = require('gulp-deb');
 
-```javascript
-function buildPackage () {
+gulp.task('build', function () {
 
    return gulp
-     .src([
-        // this is example for Symfony2 App Directory structure
-        'app/**',
-        '!app/cache',
-        '!app/logs',
-        '!app/config/parameters.yml',
-        'src/**',
-        'vendor/**'
-        'web/**',
-        '!**/.git/**
-     ], {base: process.cwd()})
-     .pipe(deb('build.deb', {
+       .src([
+         'src/**',
+         'node_modules/**,
+         '!**/.git/**'
+       ], { base: process.cwd() })
+       .pipe(deb('example.deb', {
+         name: 'example',
+         version: '1',
          maintainer: {
            name: 'John Doe',
            email: 'john.doe@example.org'
          },
-         short_description: 'the short description',
-         long_description: 'the long description added to the debian package'
-     })
-     .pipe(gulp.dest('builds/'))
-}
+         short_description: 'some short description',
+         long_description: 'some long description'
+       }))
+       .pipe(gulp.dest('builds/'));
+});
 ```
 
 ## TODO
 
  - More control over DEB package metadata
  - Add `md5sums` option for generate corresponding file with checksum for every file
+
+## Contribution
+
+Feel free to contribute! Any help will be useful!
