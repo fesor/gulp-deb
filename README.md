@@ -1,6 +1,8 @@
 Build DEB Packages with Gulp
 ==============================
 
+**Note**: This plugin is not ready to use in production
+
 Deb archives is a great way for distribute your software package
 
 ## Basic Usage
