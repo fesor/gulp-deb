@@ -122,12 +122,76 @@ function compress (cb) {
 
 function createControlFile (options) {
 
-  return lodash.template([
+  var contents = [
     'Package: <%= name %>',
     'Version: <%= version %>',
-    'Maintainer: <%= maintainer.name %> <<%= maintainer.email %>>',
-    'Architecture: all',
-    'Description: <%= short_description %>',
-    ' <%= short_description %>'
-  ].join('\n') + '\n')(options);
+    'Maintainer: <%= maintainer.name %> <<%= maintainer.email %>>'
+  ];
+  
+  if (options.architecture) {
+    contents.push('Architecture: <%= architecture %>');
+  } else {
+    contents.push('Architecture: all');
+  }
+  
+  if (options.installedSize) {
+    contents.push('Installed-Size: <%= installedSize %>');
+  }
+  
+  if (options.preDepends) {
+    if (options.preDepends instanceof Array) {
+      options.preDepends = options.preDepends.join(',');
+    }
+    
+    contents.push('Pre-Depends: <%= preDepends %>');
+  }
+  
+  if (options.depends) {
+    if (options.depends instanceof Array) {
+      options.depends = options.depends.join(',');
+    }
+  
+    contents.push('Depends: <%= depends %>');
+  }
+  
+  if (options.recommends) {
+    if (options.recommends instanceof Array) {
+      options.recommends = options.recommends.join(',');
+    }
+  
+    contents.push('Recommends: <%= recommends %>');
+  }
+  
+  if (options.suggests) {
+    if (options.suggests instanceof Array) {
+      options.suggests = options.suggests.join(',');
+    }
+    
+    contents.push('Suggests: <%= suggests %>');
+  }
+  
+  if (options.enhances) {
+    if (options.enhances instanceof Array) {
+      options.enhances = options.enhances.join(',');
+    }
+    
+    contents.push('Enhances: <%= enhances %>');
+  }
+  
+  if (options.section) {
+    contents.push('Section: <%= section %>');
+  }
+  
+  if (options.priority) {
+    contents.push('Priority: <%= priority %>');
+  }
+  
+  if (options.homepage) {
+    contents.push('Homepage: <%= homepage %>');
+  }
+  
+  contents.push('Description: <%= short_description %>');
+  contents.push(' <%= long_description %>');
+
+  return lodash.template(contents.join('\n') + '\n')(options);
 }
