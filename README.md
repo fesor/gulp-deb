@@ -58,7 +58,6 @@ More information about package control files [here](http://www.debian.org/doc/ma
 
 ## TODO
 
- - More control over DEB package metadata
  - Add `md5sums` option for generate corresponding file with checksum for every file
 
 ## Contribution

@@ -122,76 +122,48 @@ function compress (cb) {
 
 function createControlFile (options) {
 
-  var contents = [
+  var controlFileTemplate = [
     'Package: <%= name %>',
     'Version: <%= version %>',
     'Maintainer: <%= maintainer.name %> <<%= maintainer.email %>>'
   ];
-  
-  if (options.architecture) {
-    contents.push('Architecture: <%= architecture %>');
-  } else {
-    contents.push('Architecture: all');
-  }
-  
-  if (options.installedSize) {
-    contents.push('Installed-Size: <%= installedSize %>');
-  }
-  
-  if (options.preDepends) {
-    if (options.preDepends instanceof Array) {
-      options.preDepends = options.preDepends.join(',');
-    }
-    
-    contents.push('Pre-Depends: <%= preDepends %>');
-  }
-  
-  if (options.depends) {
-    if (options.depends instanceof Array) {
-      options.depends = options.depends.join(',');
-    }
-  
-    contents.push('Depends: <%= depends %>');
-  }
-  
-  if (options.recommends) {
-    if (options.recommends instanceof Array) {
-      options.recommends = options.recommends.join(',');
-    }
-  
-    contents.push('Recommends: <%= recommends %>');
-  }
-  
-  if (options.suggests) {
-    if (options.suggests instanceof Array) {
-      options.suggests = options.suggests.join(',');
-    }
-    
-    contents.push('Suggests: <%= suggests %>');
-  }
-  
-  if (options.enhances) {
-    if (options.enhances instanceof Array) {
-      options.enhances = options.enhances.join(',');
-    }
-    
-    contents.push('Enhances: <%= enhances %>');
-  }
-  
-  if (options.section) {
-    contents.push('Section: <%= section %>');
-  }
-  
-  if (options.priority) {
-    contents.push('Priority: <%= priority %>');
-  }
-  
-  if (options.homepage) {
-    contents.push('Homepage: <%= homepage %>');
-  }
-  
-  contents.push('Description: <%= short_description %>');
-  contents.push(' <%= long_description %>');
 
-  return lodash.template(contents.join('\n') + '\n')(options);
+  checkFieldOption('architecture', 'Architecture: <%= architecture %>', false, 'all');
+  checkFieldOption('installedSize', 'Installed-Size: <%= installedSize %>');
+  checkFieldOption('preDepends', 'Pre-Depends: <%= preDepends %>', true);
+  checkFieldOption('depends', 'Depends: <%= depends %>', true);
+  checkFieldOption('recommends', 'Recommends: <%= recommends %>', true);
+  checkFieldOption('suggests', 'Suggests: <%= suggests %>', true);
+  checkFieldOption('enhances', 'Enhances: <%= enhances %>', true);
+  checkFieldOption('section', 'Section: <%= section %>');
+  checkFieldOption('priority', 'Priority: <%= priority %>');
+  checkFieldOption('homepage', 'Homepage: <%= homepage %>');
+
+  controlFileTemplate.push('Description: <%= short_description %>');
+  controlFileTemplate.push(' <%= long_description %>');
+
+  return lodash.template(controlFileTemplate.join('\n') + '\n')(options);
+
+  /**
+   * @param {string} prop
+   * @param {string} template
+   * @param {boolean} [canBeArray=false]
+   * @param {string=} defaultValue
+     */
+  function checkFieldOption (prop, template, canBeArray, defaultValue) {
+    canBeArray = canBeArray === true;
+    if (!options.hasOwnProperty(prop) || !options[prop]) {
+      if (undefined === defaultValue) {
+        return;
+      }
+
+      options[prop] = defaultValue;
+    }
+
+    if (canBeArray && Array.isArray(options[prop])) {
+      options[prop] = options[prop].join(',');
+    }
+
+    controlFileTemplate.push(template);
+  }
 }
