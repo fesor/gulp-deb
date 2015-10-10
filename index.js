@@ -88,16 +88,19 @@ function generateControl(options, cb) {
     name: 'control'
   });
 
-  if (options.post_install) {
-    archive.append(new Buffer(options.post_install), {
-      name: 'postinst'
-    });
-  }
+  if (options.scripts) {
 
-  if (options.pre_install) {
-    archive.append(new Buffer(options.pre_install), {
-      name: 'prerm'
-    });
+    // Adding preinst, postinst, prerm, postrm to package 
+
+    for (var script in options.scripts) {
+      if (options.scripts.hasOwnProperty(script)) {
+        var content = options.scripts[script];
+        
+        archive.append(new Buffer(content), {
+          name: script
+        });        
+      }
+    }
   }
 
   streamToBuffer(archive, cb);
