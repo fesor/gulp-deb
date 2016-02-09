@@ -4,11 +4,12 @@ var path = require('path');
 var gutil = require('gulp-util');
 var through = require('through2');
 var assign = require('object-assign');
-var archiver = require('archiver');
+var tar = require('tar-stream');
 var lodash = require('lodash');
 var ar = require('./lib/ar');
 var streamToBuffer = require('stream-to-buffer');
 var zlib = require('zlib');
+var fs = require('fs');
 
 module.exports = function (filename, options) {
   if (!filename) {
@@ -16,7 +17,7 @@ module.exports = function (filename, options) {
   }
 
   var firstFile;
-  var archive = archiver('tar');
+  var archive = tar.pack();
 
   return through.obj(function (file, enc, cb) {
     if (file.relative === '') {
@@ -28,14 +29,42 @@ module.exports = function (filename, options) {
       firstFile = file;
     }
 
-    archive.append(file.contents, {
-      name: file.relative.replace(/\\/g, '/') + (file.isNull() ? '/' : ''),
-      mode: file.stat && file.stat.mode
-    });
+    gutil.log('Packing:', file.relative);
 
-    cb();
+    if(file.stat.isSymbolicLink()) {
+      archive.entry({
+        name: file.relative.replace(/\\/g, '/') + (file.isNull() ? '/' : ''),
+        mode: file.stat.mode,
+        type: 'symlink',
+        linkname: fs.readlinkSync(file.path)
+      });
+
+      return cb();
+    } else if(file.stat.isDirectory()) {
+      archive.entry({
+        name: file.relative.replace(/\\/g, '/') + (file.isNull() ? '/' : ''),
+        mode: file.stat.mode,
+        type: 'directory',
+      });
+
+      return cb();
+    } else {
+      archive.entry({
+        name: file.relative.replace(/\\/g, '/') + (file.isNull() ? '/' : ''),
+        mode: file.stat.mode,
+        size: file.stat.size,
+        uid: 0,
+        gid: 0,
+        type: 'file',
+        mtime: file.stat.mtime
+      }, file.contents);
+
+      return cb();
+    }
   }, function (cb) {
     if (firstFile === undefined) {
+      gutil.log('First file is undefined!');
+
       cb();
       return;
     }
@@ -82,23 +111,19 @@ function createDeb (data, options, cb) {
 
 function generateControl(options, cb) {
 
-  var archive = archiver('tar');
+  var archive = tar.pack();
 
-  archive.append(new Buffer(createControlFile(options)), {
-    name: 'control'
-  });
+  archive.entry({name: 'control'}, new Buffer(createControlFile(options)));
 
   if (options.scripts) {
 
-    // Adding preinst, postinst, prerm, postrm to package 
+    // Adding preinst, postinst, prerm, postrm to package
 
     for (var script in options.scripts) {
       if (options.scripts.hasOwnProperty(script)) {
         var content = options.scripts[script];
-        
-        archive.append(new Buffer(content), {
-          name: script
-        });        
+
+        archive.entry({name: script}, new Buffer(content));
       }
     }
   }
