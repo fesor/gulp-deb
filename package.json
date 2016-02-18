@@ -1,6 +1,6 @@
 {
   "name": "gulp-deb",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Build DEB archives with gulp",
   "main": "index.js",
   "repository": "fesor/gulp-deb",
